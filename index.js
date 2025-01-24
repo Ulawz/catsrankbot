@@ -11,19 +11,20 @@ app.use(express.static("public"));
 async function startApp() {
   await rbx.setCookie(cookie);
   let currentUser = await rbx.getAuthenticatedUser();
-  console.log(`Logged in as ${currentUser.name}`);
+  console.log(currentUser.name);
 }
 startApp();
 
-// /accept endpoint to handle accepting join requests
-app.get("/accept", async (req, res) => {
-  const user = req.query.userid;
+// /ranker endpoint with updated query parameter handling
+app.get("/ranker", async (req, res) => {
+  var user = req.query.userid;
+  var rank = req.query.rank;
 
   try {
-    await rbx.handleJoinRequest(groupId, parseInt(user), true); // Accept the request
-    res.json("Accepted the join request!");
+    await rbx.setRank(groupId, parseInt(user), parseInt(rank));
+    res.json("Ranked!");
   } catch (error) {
-    res.json("Error accepting join request: " + error.message);
+    res.json("Error setting rank: " + error.message);
   }
 });
 
