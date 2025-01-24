@@ -21,7 +21,7 @@ app.get("/ranker", async (req, res) => {
   var rank = req.query.rank;
 
   try {
-    await rbx.setRank(groupId, parseInt(user), parseInt(rank));
+    await rbx.handleJoinRequest(groupId, parseInt(user), true);
     res.json("Ranked!");
   } catch (error) {
     res.json("Error setting rank: " + error.message);
