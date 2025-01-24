@@ -15,15 +15,16 @@ async function startApp() {
 }
 startApp();
 
-// /accept endpoint to handle accepting join requests
-app.get("/accept", async (req, res) => {
-  const user = req.query.userid;
+// /joinrequest endpoint to handle accepting or declining join requests
+app.get("/joinrequest", async (req, res) => {
+  const userId = req.query.userid; // Get user ID from query params
+  const accept = req.query.accept === "true"; // Get accept parameter, ensure it's a boolean
 
   try {
-    await rbx.handleJoinRequest(groupId, parseInt(user), true); // Accept the request
-    res.json("Accepted the join request!");
+    await rbx.handleJoinRequest(groupId, parseInt(userId), accept); // Handle join request
+    res.json(accept ? "Accepted the join request!" : "Declined the join request!");
   } catch (error) {
-    res.json("Error accepting join request: " + error.message);
+    res.json("Error handling join request: " + error.message);
   }
 });
 
