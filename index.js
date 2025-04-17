@@ -28,30 +28,39 @@ app.get("/ranker", async (req, res) => {
   }
 });
 
-
 // /joinRequest endpoint to accept a join request
 app.get("/joinRequest", async (req, res) => {
-  var user = req.query.userid;
+  const user = parseInt(req.query.userid);
 
   try {
-    await rbx.handleJoinRequest(groupId, parseInt(user), true); // Accept join request
+    await rbx.handleJoinRequest(groupId, user, true); // Accept join request
     res.json("Join request accepted!");
   } catch (error) {
     res.json("Error accepting join request: " + error.message);
   }
 });
 
-// /checkJoinRequest endpoint to check if a join request exists
+// /checkJoinRequest endpoint to check if a join request exists (with pagination)
 app.get("/checkJoinRequest", async (req, res) => {
-  var user = parseInt(req.query.userid);
+  const userId = parseInt(req.query.userid);
 
   try {
-    let result = await rbx.getJoinRequests(groupId); // result is an object
-    let requests = result.data || []; // grab the array of requests
+    let found = false;
+    let cursor = null;
 
-    let joinRequestExists = requests.some(request => request.userId === user);
+    do {
+      const result = await rbx.getJoinRequests(groupId, cursor);
+      const requests = result.data || [];
 
-    if (joinRequestExists) {
+      if (requests.some(req => req.userId === userId)) {
+        found = true;
+        break;
+      }
+
+      cursor = result.nextPageCursor;
+    } while (cursor);
+
+    if (found) {
       res.json("Join request exists for this user.");
     } else {
       res.json("No join request found for this user.");
@@ -62,5 +71,5 @@ app.get("/checkJoinRequest", async (req, res) => {
 });
 
 const listener = app.listen(process.env.PORT, () => {
-   console.log("Your app is listening on port " + listener.address().port);
- });
+  console.log("Your app is listening on port " + listener.address().port);
+});
