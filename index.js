@@ -40,6 +40,22 @@ app.get("/joinRequest", async (req, res) => {
   }
 });
 
+// /checkJoinRequest endpoint to check if a join request exists
+app.get("/checkJoinRequest", async (req, res) => {
+  const user = parseInt(req.query.userid);
+
+  try {
+    const request = await rbx.getJoinRequest(groupId, user); // Check for a join request
+    if (request) {
+      res.json("Join request exists for user " + user);
+    } else {
+      res.json("No join request found for user " + user);
+    }
+  } catch (error) {
+    res.json("Error checking join request: " + error.message);
+  }
+});
+
 const listener = app.listen(process.env.PORT, () => {
   console.log("Your app is listening on port " + listener.address().port);
 });
