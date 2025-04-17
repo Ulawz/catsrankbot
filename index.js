@@ -60,3 +60,7 @@ app.get("/checkJoinRequest", async (req, res) => {
     res.json("Error checking join request: " + error.message);
   }
 });
+
+const listener = app.listen(process.env.PORT, () => {
+   console.log("Your app is listening on port " + listener.address().port);
+ });
