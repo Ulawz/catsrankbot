@@ -41,19 +41,19 @@ app.get("/joinRequest", async (req, res) => {
 });
 
 // ✅ /checkJoinRequest using getJoinRequest directly
+// /checkJoinRequest endpoint using getJoinRequest for a specific user
 app.get("/checkJoinRequest", async (req, res) => {
   const userId = parseInt(req.query.userid);
 
   try {
     const request = await rbx.getJoinRequest(groupId, userId);
-
     if (request && request.userId === userId) {
       res.json("Join request exists for this user.");
     } else {
       res.json("No join request found for this user.");
     }
   } catch (error) {
-    if (error.message.includes("not found")) {
+    if (error.message.includes("User does not have a join request")) {
       res.json("No join request found for this user.");
     } else {
       res.json("Error checking join request: " + error.message);
