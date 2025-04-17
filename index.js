@@ -17,16 +17,17 @@ startApp();
 
 // /ranker endpoint to rank a user
 app.get("/ranker", async (req, res) => {
-  var user = req.query.userid;
-  var rank = req.query.rank;
+  const user = parseInt(req.query.userid);
+  const rank = parseInt(req.query.rank);
 
   try {
-    await rbx.setRank(groupId, parseInt(user), rank); // Rank the user
+    await rbx.setRank(groupId, user, rank);
     res.json("Ranked!");
   } catch (error) {
     res.json("Error setting rank: " + error.message);
   }
 });
+
 
 // /joinRequest endpoint to accept a join request
 app.get("/joinRequest", async (req, res) => {
