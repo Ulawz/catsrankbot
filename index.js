@@ -43,12 +43,14 @@ app.get("/joinRequest", async (req, res) => {
 
 // /checkJoinRequest endpoint to check if a join request exists
 app.get("/checkJoinRequest", async (req, res) => {
-  var user = req.query.userid;
+  var user = parseInt(req.query.userid);
 
   try {
-    let requests = await rbx.getJoinRequests(groupId); // Fetch join requests
-    let joinRequestExists = requests.some(request => request.userId === parseInt(user));
-    
+    let result = await rbx.getJoinRequests(groupId); // result is an object
+    let requests = result.data || []; // grab the array of requests
+
+    let joinRequestExists = requests.some(request => request.userId === user);
+
     if (joinRequestExists) {
       res.json("Join request exists for this user.");
     } else {
@@ -57,8 +59,4 @@ app.get("/checkJoinRequest", async (req, res) => {
   } catch (error) {
     res.json("Error checking join request: " + error.message);
   }
-});
-
-const listener = app.listen(process.env.PORT, () => {
-  console.log("Your app is listening on port " + listener.address().port);
 });
