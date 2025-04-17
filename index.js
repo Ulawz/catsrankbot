@@ -3,14 +3,14 @@ const rbx = require("noblox.js");
 const app = express();
 
 // Using environment variables
-var groupId = process.env.GROUP_ID;
-var cookie = process.env.COOKIE;
+const groupId = parseInt(process.env.GROUP_ID);
+const cookie = process.env.COOKIE;
 
 app.use(express.static("public"));
 
 async function startApp() {
   await rbx.setCookie(cookie);
-  let currentUser = await rbx.getAuthenticatedUser();
+  const currentUser = await rbx.getAuthenticatedUser();
   console.log(currentUser.name);
 }
 startApp();
@@ -40,33 +40,24 @@ app.get("/joinRequest", async (req, res) => {
   }
 });
 
-// /checkJoinRequest endpoint to check if a join request exists (with pagination)
+// ✅ /checkJoinRequest using getJoinRequest directly
 app.get("/checkJoinRequest", async (req, res) => {
   const userId = parseInt(req.query.userid);
 
   try {
-    let found = false;
-    let cursor = null;
+    const request = await rbx.getJoinRequest(groupId, userId);
 
-    do {
-      const result = await rbx.getJoinRequests(groupId, cursor);
-      const requests = result.data || [];
-
-      if (requests.some(req => req.userId === userId)) {
-        found = true;
-        break;
-      }
-
-      cursor = result.nextPageCursor;
-    } while (cursor);
-
-    if (found) {
+    if (request && request.userId === userId) {
       res.json("Join request exists for this user.");
     } else {
       res.json("No join request found for this user.");
     }
   } catch (error) {
-    res.json("Error checking join request: " + error.message);
+    if (error.message.includes("not found")) {
+      res.json("No join request found for this user.");
+    } else {
+      res.json("Error checking join request: " + error.message);
+    }
   }
 });
 
